@@ -1,7 +1,7 @@
-package dan.auditoy;
+package io.confluent.dan;
 
-import dan.auditoy.generated.Metadata;
-import dan.auditoy.generated.Signals;
+import io.confluent.dan.generated.Metadata;
+import io.confluent.dan.generated.Signals;
 
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.*;
@@ -11,17 +11,14 @@ import org.apache.kafka.streams.kstream.KTable;
 
 import java.util.Properties;
 
-
 public class ScaleStreams {
 
-    public static void main(String[] args) {
-        Properties props = Configuration.invoke();
-        StreamsConfig config = new StreamsConfig(props);
-
+    public void run () {
+        System.out.println("ScaleStreams: Starting");
+        StreamsConfig config = new StreamsConfig(Configuration.invoke());
         StreamsBuilder builder = new StreamsBuilder();
 
         KTable<String, Metadata> metadata = builder.table("metadata");
-
         KStream<String, Signals> signals = builder.stream("signals");
 
         signals.join(metadata,
@@ -30,16 +27,12 @@ public class ScaleStreams {
                             s.setPressure(s.getPressure()*m.getSignal1scale());
                             return s;
                         })
-                .to("scaledsignals3");
-
-        signals.to("signals2");
+                .to("scaledsignals");
 
         Topology topology = builder.build();
         KafkaStreams streams = new KafkaStreams(topology, config);
         Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
         streams.start();
-
-
     }
 
     private static class Configuration {

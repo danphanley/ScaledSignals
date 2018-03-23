@@ -1,7 +1,7 @@
-package dan.auditoy;
+package io.confluent.dan;
 
-import dan.auditoy.generated.Metadata;
-import dan.auditoy.generated.Signals;
+import io.confluent.dan.generated.Metadata;
+import io.confluent.dan.generated.Signals;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -15,7 +15,14 @@ import java.util.concurrent.TimeUnit;
 
 public class DualProducer {
 
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) {
+        DualProducer p = new DualProducer();
+        p.run();
+    }
+
+    public void run() {
+
+        System.out.println("DualProducer: Starting");
 
         Properties props = Configuration.invoke();
 
@@ -54,11 +61,18 @@ public class DualProducer {
         metadataExecutor.scheduleAtFixedRate(metadataTask, metadataInitialDelay, metadataPeriod, TimeUnit.SECONDS);
         signalsExecutor.scheduleAtFixedRate(signalsTask, signalsInitialDelay, signalsPeriod, TimeUnit.SECONDS);
 
-        latch.await();
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("DualProducer: Stopping production");
+
         metadataExecutor.shutdownNow();
         signalsExecutor.shutdownNow();
-        System.out.println("Stopping production");
-        System.out.println("Exiting");
+
+        System.out.println("DualProducer: Exiting");
 
     }
 

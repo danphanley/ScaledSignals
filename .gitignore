@@ -2,3 +2,4 @@ scaler.iml
 .idea
 out/
 generated/
+target/

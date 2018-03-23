@@ -1,5 +1,5 @@
 {
-    "namespace": "dan.auditoy.generated",
+    "namespace": "io.confluent.dan.generated",
     "type":"record",
     "name":"Signals",
     "fields":[
