@@ -1,0 +1,9 @@
+{
+    "namespace": "dan.auditoy.generated",
+    "type":"record",
+    "name":"Signals",
+    "fields":[
+        {"name":"temp","type":"int"},
+        {"name":"pressure","type":"int"}
+    ]
+}

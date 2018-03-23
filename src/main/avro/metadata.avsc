@@ -1,0 +1,8 @@
+{
+  "namespace": "dan.auditoy.generated",
+  "type":"record",
+  "name":"Metadata",
+  "fields":[
+    {"name":"signal1scale","type":"int"}
+    ]
+}
