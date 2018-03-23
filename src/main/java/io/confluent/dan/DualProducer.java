@@ -15,15 +15,9 @@ import java.util.concurrent.TimeUnit;
 
 public class DualProducer {
 
-    public static void main(String[] args) {
-        DualProducer p = new DualProducer();
-        p.run();
-    }
-
     public void run() {
 
         System.out.println("DualProducer: Starting");
-
         Properties props = Configuration.invoke();
 
         // Hard coding topics

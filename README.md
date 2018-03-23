@@ -1,36 +1,36 @@
-java -jar lib/avro-tools-1.8.2.jar compile schema avro/metadata.avsc src
-java -jar lib/avro-tools-1.8.2.jar compile schema avro/signals.avsc src
+# Simple Scaler
 
-bin/kafka-avro-console-producer --broker-list localhost:9092 --topic metadata \
-  --property parse.key=true \
-  --property key.schema='{"type":"string"}' \
-  --property value.schema='{"type":"record","name":"metadata","fields":[{"name":"signal1scale","type":"int"}]}'
+This project is intended to show how Signal data may be scaled by using a table of scale factors.
 
+The DualProducer class writes messages to a Signals stream and a Metadata stream.
+The StreamScaler builds a table from Metadata and uses the metadata to scale the Signal values before writing them out to a new ScaledSignals stream.
 
+*Status* Broken
 
-"key1"  {"signal1scale": 1}
-"key2"  {"signal1scale": 8}
+---
+To build:
 
-bin/kafka-avro-console-consumer --topic metadata \
-  --bootstrap-server localhost:9092 \
-  --property print.key=true
+```console
+mvn clean compile
+```
 
-bin/kafka-avro-console-producer --broker-list localhost:9092 --topic signals \
-    --property parse.key=true \
-    --property key.schema='{"type":"string"}' \
-    --property value.schema='{"type":"record","name":"Signals","namespace":"dan.auditoy","fields":[{"name":"temp","type":"int"},{"name":"pressure","type":"int"}]}'
+To run:
+```console
+confluent start
+mvn exec:java
+```
 
-"key1"	{"signal1scale": 1}
-"key2"  {"signal1scale": 8}
-
+To monitor:
+```console
 bin/kafka-avro-console-consumer --topic signals \
   --bootstrap-server localhost:9092 \
   --property print.key=true
 
-bin/kafka-avro-console-consumer --topic scaledsignals2 \
+bin/kafka-avro-console-consumer --topic scaledsignals \
     --bootstrap-server localhost:9092 \
     --property print.key=true
 
-bin/kafka-avro-console-consumer --topic metadata2 \
+bin/kafka-avro-console-consumer --topic metadata \
         --bootstrap-server localhost:9092 \
         --property print.key=true
+```
