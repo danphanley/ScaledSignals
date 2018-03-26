@@ -5,7 +5,7 @@ This project is intended to show how Signal data may be scaled by using a table 
 The DualProducer class writes messages to a Signals stream and a Metadata stream.
 The StreamScaler builds a table from Metadata and uses the metadata to scale the Signal values before writing them out to a new ScaledSignals stream.
 
-*Status* Broken
+In order to keep things simple, the same scale factor is used for all signals, and all records are hardcoded to the same key.
 
 ---
 To build:
@@ -29,9 +29,9 @@ bin/kafka-avro-console-consumer --topic metadata \
  
 
 bin/kafka-avro-console-consumer --topic signals \
-  --bootstrap-server localhost:9092 \
-  --property print.key=true \
-  --property key.deserializer=org.apache.kafka.common.serialization.StringDeserializer
+    --bootstrap-server localhost:9092 \
+    --property print.key=true \
+    --property key.deserializer=org.apache.kafka.common.serialization.StringDeserializer
           
 
 bin/kafka-avro-console-consumer --topic scaledsignals \

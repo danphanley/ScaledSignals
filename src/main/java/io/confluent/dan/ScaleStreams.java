@@ -29,6 +29,7 @@ public class ScaleStreams {
 
         final Map<String, String> serdeConfig = Collections.singletonMap(
                 AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, props.getProperty("schema.registry.url"));
+
         Serde<String> keySerdes = Serdes.String();
         keySerdes.configure(serdeConfig, true);
 
@@ -42,12 +43,11 @@ public class ScaleStreams {
         KStream<String, Signals> signals = builder.stream("signals", Consumed.with(keySerdes, signalsValueSerdes));
 
         signals.join(metadata,
-                        (s, m) -> {
-                            System.out.println("S");
-                            return new Signals(
-                                s.getTemp()*m.getSignal1scale(),
-                                s.getPressure()*m.getSignal1scale()
-                        );}, Joined.with(keySerdes,signalsValueSerdes,metadataValueSerdes))
+                    (s, m) -> new Signals(
+                                s.getTemp()*m.getSignalscalefactor(),
+                                s.getPressure()*m.getSignalscalefactor()
+                    ),
+                    Joined.with(keySerdes,signalsValueSerdes,metadataValueSerdes))
                 .to("scaledsignals", Produced.with(keySerdes, signalsValueSerdes));
 
         Topology topology = builder.build();

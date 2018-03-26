@@ -3,7 +3,7 @@
   "type":"record",
   "name":"Metadata",
   "fields":[
-    {"name":"signal1scale",
+    {"name":"signalscalefactor",
         "type":"int",
         "default": 1}
     ]
