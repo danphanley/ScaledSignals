@@ -94,11 +94,11 @@ public class DualProducer {
         private static Properties invoke() {
             Properties props = new Properties();
             props.put("bootstrap.servers", "localhost:9092");
-            props.put("acks", "all");
+            props.put("acks", "all");props.put("schema.registry.url", "http://localhost:8081");
             props.put("retries", 0);
             props.put("key.serializer", "io.confluent.kafka.serializers.KafkaAvroSerializer");
             props.put("value.serializer", "io.confluent.kafka.serializers.KafkaAvroSerializer");
-            props.put("schema.registry.url", "http://localhost:8081");
+
             return props;
         }
     }

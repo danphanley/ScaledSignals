@@ -30,13 +30,13 @@ bin/kafka-avro-console-consumer --topic metadata \
 
 bin/kafka-avro-console-consumer --topic signals \
   --bootstrap-server localhost:9092 \
-  --property print.key=true
+  --property print.key=true \
   --property key.deserializer=org.apache.kafka.common.serialization.StringDeserializer
           
 
 bin/kafka-avro-console-consumer --topic scaledsignals \
     --bootstrap-server localhost:9092 \
-    --property print.key=true
+    --property print.key=true \
     --property key.deserializer=org.apache.kafka.common.serialization.StringDeserializer   
 
 ```
