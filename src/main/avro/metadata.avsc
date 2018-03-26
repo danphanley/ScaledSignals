@@ -3,6 +3,8 @@
   "type":"record",
   "name":"Metadata",
   "fields":[
-    {"name":"signal1scale","type":"int"}
+    {"name":"signal1scale",
+        "type":"int",
+        "default": 1}
     ]
 }

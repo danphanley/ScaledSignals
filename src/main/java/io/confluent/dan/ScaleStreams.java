@@ -3,23 +3,37 @@ package io.confluent.dan;
 import io.confluent.dan.generated.Metadata;
 import io.confluent.dan.generated.Signals;
 
+import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig;
+import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerializer;
 import org.apache.kafka.common.serialization.Serdes;
+import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde;
 import org.apache.kafka.streams.*;
 import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.KTable;
+import org.apache.kafka.streams.kstream.Produced;
 
 
+import java.util.Collections;
+import java.util.Map;
 import java.util.Properties;
 
 public class ScaleStreams {
 
     public void run () {
         System.out.println("ScaleStreams: Starting");
-        StreamsConfig config = new StreamsConfig(Configuration.invoke());
+        Properties props = Configuration.invoke();
+        StreamsConfig config = new StreamsConfig(props);
         StreamsBuilder builder = new StreamsBuilder();
 
-        KTable<String, Metadata> metadata = builder.table("metadata");
-        KStream<String, Signals> signals = builder.stream("signals");
+        final Map<String, String> serdeConfig = Collections.singletonMap(
+                AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, props.getProperty("schema.registry.url"));
+        final SpecificAvroSerde<Metadata> metadataEventSerdes = new SpecificAvroSerde<>();
+        metadataEventSerdes.configure(serdeConfig, false);
+        final SpecificAvroSerde<Signals> signalsEventSerdes = new SpecificAvroSerde<>();
+        signalsEventSerdes.configure(serdeConfig, false);
+
+        KTable<String, Metadata> metadata = builder.table("metadata", Consumed.with(Serdes.String(), metadataEventSerdes));
+        KStream<String, Signals> signals = builder.stream("signals", Consumed.with(Serdes.String(), signalsEventSerdes));
 
         signals.join(metadata,
                         (s, m) -> {
@@ -27,7 +41,7 @@ public class ScaleStreams {
                             s.setPressure(s.getPressure()*m.getSignal1scale());
                             return s;
                         })
-                .to("scaledsignals");
+                .to("scaledsignals", Produced.with(Serdes.String(), new SpecificAvroSerde<Signals>()));
 
         Topology topology = builder.build();
         KafkaStreams streams = new KafkaStreams(topology, config);
