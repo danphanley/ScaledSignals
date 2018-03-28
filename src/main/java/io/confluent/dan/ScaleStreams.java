@@ -48,7 +48,7 @@ public class ScaleStreams {
                                 s.getPressure()*m.getSignalscalefactor()
                     ),
                     Joined.with(keySerdes,signalsValueSerdes,metadataValueSerdes))
-                .to("scaledsignals", Produced.with(keySerdes, signalsValueSerdes));
+                .to("scaled_signals", Produced.with(keySerdes, signalsValueSerdes));
 
         Topology topology = builder.build();
         KafkaStreams streams = new KafkaStreams(topology, config);

@@ -13,5 +13,10 @@ public class Main {
             .submit(() -> {
                 new ScaleStreams().run();
         });
+
+        Executors.newSingleThreadExecutor()
+            .submit(() -> {
+                new JoinStreams().run();
+        });
     }
 }
