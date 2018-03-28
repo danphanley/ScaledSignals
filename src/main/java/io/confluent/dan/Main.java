@@ -16,7 +16,7 @@ public class Main {
 
         Executors.newSingleThreadExecutor()
             .submit(() -> {
-                new JoinStreams().run();
+                new ScaleStreamsScala().run();
         });
     }
 }
