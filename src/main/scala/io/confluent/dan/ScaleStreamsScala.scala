@@ -9,6 +9,8 @@ import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig
 import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde
 import org.apache.kafka.common.serialization.{Serde, Serdes}
 import org.apache.kafka.streams.kstream.Produced
+import org.apache.kafka.clients.consumer.ConsumerConfig
+import org.apache.kafka.clients.producer.ProducerConfig
 import org.apache.kafka.streams.{Consumed, KafkaStreams, StreamsConfig}
 
 class ScaleStreamsScala {
@@ -46,9 +48,11 @@ class ScaleStreamsScala {
 
   private def configure = {
     val streamsConfiguration = new Properties()
-    streamsConfiguration.put(StreamsConfig.APPLICATION_ID_CONFIG, "auditoyScala77")
+    streamsConfiguration.put(StreamsConfig.APPLICATION_ID_CONFIG, "auditoyScala")
     streamsConfiguration.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092")
     streamsConfiguration.put("schema.registry.url", "http://localhost:8081")
+    streamsConfiguration.put(StreamsConfig.CONSUMER_PREFIX + ConsumerConfig.INTERCEPTOR_CLASSES_CONFIG, "io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor")
+    streamsConfiguration.put(StreamsConfig.PRODUCER_PREFIX + ProducerConfig.INTERCEPTOR_CLASSES_CONFIG, "io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor")
     streamsConfiguration
   }
 }

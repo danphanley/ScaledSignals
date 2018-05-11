@@ -7,8 +7,10 @@ import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde;
 import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerializer;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
+import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.Serdes;
+import org.apache.kafka.streams.StreamsConfig;
 
 import java.util.Collections;
 import java.util.Map;
@@ -50,19 +52,19 @@ public class DualProducer {
         ScheduledExecutorService metadataExecutor = Executors.newScheduledThreadPool(1);
         ScheduledExecutorService signalsExecutor = Executors.newScheduledThreadPool(1);
 
-        final CountDownLatch latch = new CountDownLatch(5);
+        final CountDownLatch latch = new CountDownLatch(5000);
 
         Runnable metadataTask = () -> {
             Metadata meta = MetadataGenerator.getNext();
-            System.out.println("Generated event " + meta.toString());
-            ProducerRecord<String, Metadata> record = new ProducerRecord<String, Metadata>(METADATA.name(), "key1", meta);
+            //System.out.println("Generated event " + meta.toString());
+            ProducerRecord<String, Metadata> record = new ProducerRecord<>(METADATA.name(), "key1", meta);
             metadataProducer.send(record);
             latch.countDown();
         };
 
         Runnable signalsTask = () -> {
             Signals signals = SignalsGenerator.getNext();
-            System.out.println("Generated event " + signals.toString());
+            //System.out.println("Generated event " + signals.toString());
             ProducerRecord<String, Signals> record = new ProducerRecord<>(SIGNALS.name(), "key1", signals);
             signalsProducer.send(record);
         };
@@ -73,7 +75,7 @@ public class DualProducer {
         int signalsPeriod = 1;
 
         metadataExecutor.scheduleAtFixedRate(metadataTask, metadataInitialDelay, metadataPeriod, TimeUnit.SECONDS);
-        signalsExecutor.scheduleAtFixedRate(signalsTask, signalsInitialDelay, signalsPeriod, TimeUnit.SECONDS);
+        signalsExecutor.scheduleAtFixedRate(signalsTask, signalsInitialDelay, signalsPeriod, TimeUnit.MILLISECONDS);
 
         try {
             latch.await();
@@ -93,12 +95,13 @@ public class DualProducer {
     private static class Configuration {
         private static Properties invoke() {
             Properties props = new Properties();
-            props.put("bootstrap.servers", "localhost:9092");
-            props.put("acks", "all");props.put("schema.registry.url", "http://localhost:8081");
+            props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+            props.put("acks", "all");
+            props.put("schema.registry.url", "http://localhost:8081");
             props.put("retries", 0);
-            props.put("key.serializer", "io.confluent.kafka.serializers.KafkaAvroSerializer");
-            props.put("value.serializer", "io.confluent.kafka.serializers.KafkaAvroSerializer");
-
+            props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, "io.confluent.kafka.serializers.KafkaAvroSerializer");
+            props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, "io.confluent.kafka.serializers.KafkaAvroSerializer");
+            props.put(StreamsConfig.PRODUCER_PREFIX + ProducerConfig.INTERCEPTOR_CLASSES_CONFIG, "io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor" );
             return props;
         }
     }
