@@ -3,15 +3,14 @@ package io.confluent.dan
 import java.util
 import java.util.{Collections, Properties}
 
-import com.lightbend.kafka.scala.streams.{KStreamS, StreamsBuilderS}
 import io.confluent.dan.generated.{Metadata, Signals}
 import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig
 import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde
 import org.apache.kafka.common.serialization.{Serde, Serdes}
-import org.apache.kafka.streams.kstream.Produced
+import org.apache.kafka.streams.kstream.{Consumed, KStream, Produced}
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.producer.ProducerConfig
-import org.apache.kafka.streams.{Consumed, KafkaStreams, StreamsConfig}
+import org.apache.kafka.streams.{KafkaStreams, StreamsBuilder, StreamsConfig}
 
 class ScaleStreamsScala {
   def run(): Unit = {
@@ -30,12 +29,12 @@ class ScaleStreamsScala {
     implicit val metadataValueSerde: Serde[Metadata] = new SpecificAvroSerde[Metadata]
     metadataValueSerde.configure(serdeConfig, false)
 
-    val builder = new StreamsBuilderS
+    val builder = new StreamsBuilder
 
     val signals = builder.stream[String, Signals]("signals", Consumed.`with`(keySerde, signalsValueSerde))
     val metadata =  builder.table[String, Metadata]("metadata", Consumed.`with`(keySerde, metadataValueSerde))
 
-    val scaledSignals: KStreamS[String, Signals] = signals.join(metadata,
+    val scaledSignals: KStream[String, Signals] = signals.join(metadata,
        (s: Signals, m: Metadata) => new Signals(s.getTemp * m.getSignalscalefactor,
                                                  s.getPressure * m.getSignalscalefactor))
 
