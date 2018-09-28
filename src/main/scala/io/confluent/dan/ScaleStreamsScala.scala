@@ -47,7 +47,7 @@ class ScaleStreamsScala {
 
   private def configure = {
     val streamsConfiguration = new Properties()
-    streamsConfiguration.put(StreamsConfig.APPLICATION_ID_CONFIG, "auditoyScala")
+    streamsConfiguration.put(StreamsConfig.APPLICATION_ID_CONFIG, "scalerScala")
     streamsConfiguration.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092")
     streamsConfiguration.put("schema.registry.url", "http://localhost:8081")
     streamsConfiguration.put(StreamsConfig.CONSUMER_PREFIX + ConsumerConfig.INTERCEPTOR_CLASSES_CONFIG, "io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor")
